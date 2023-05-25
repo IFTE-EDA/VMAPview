@@ -24,6 +24,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+# from vedo import Mesh, dataurl, Plotter
+import vedo as v
+
 import pyqtgraph as pg
 
 from .models import (
@@ -49,6 +53,7 @@ class HDF5Widget(QWidget):
         self.hdf = hdf
 
         self.image_views = {}
+        self.render_widgets = {}
 
         # Initialise the models
         self.tree_model = TreeModel(self.hdf)
@@ -146,6 +151,8 @@ class HDF5Widget(QWidget):
         """
         for view in self.image_views:
             view.close()
+        for view in self.render_widgets:
+            view.closeEvent()
         self.hdf.close()
 
     #
@@ -240,6 +247,31 @@ class HDF5Widget(QWidget):
 
         index = self.tabs.addTab(self.image_views[id_iv], 'Image')
         self.tabs.setCurrentIndex(index)
+        
+    def add_pointcloud(self):
+        """
+        Add a pointcloud from the hdf5 file.
+        """
+        renderWidget = QVTKRenderWindowInteractor(self)
+        id_rw = id(renderWidget)
+        self.render_widgets[id_rw] = renderWidget
+        
+        self.tab_dims[id_rw] = list(self.dims_model.shape)
+        tree_index = self.tree_view.currentIndex()
+        self.tab_node[id_rw] = tree_index
+        
+        renderPlt = v.Plotter(qt_widget=renderWidget, axes=1)
+        
+        index = self.tabs.addTab(renderWidget, 'Pointcloud')
+        self.tabs.setCurrentIndex(index)
+        
+        renderPlt.show(v.Box())
+        
+    def add_mesh(self):
+        """
+        Add a mesh from the hdf5 file.
+        """
+        pass
 
 
     def handle_close_tab(self, index):

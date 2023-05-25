@@ -136,6 +136,22 @@ class MainWindow(QMainWindow):
             triggered=self.handle_add_plot,
         )
         self.add_plot_action.setEnabled(False)
+        
+        self.add_pointcloud_action = QAction(
+            QIcon('icons:pointcloud.svg'),
+            'Add Pointcloud',
+            self,
+            statusTip='Add pointcloud',
+            triggered=self.handle_add_pointcloud,
+        )
+        
+        self.add_mesh_action = QAction(
+            QIcon('icons:cube.svg'),
+            'Add Mesh',
+            self,
+            statusTip='Add mesh',
+            triggered=self.handle_add_mesh,
+        )
 
     def init_menus(self):
         """
@@ -183,6 +199,8 @@ class MainWindow(QMainWindow):
         self.plots_toolbar.setObjectName('plots_toolbar')
         self.plots_toolbar.addAction(self.add_image_action)
         self.plots_toolbar.addAction(self.add_plot_action)
+        self.plots_toolbar.addAction(self.add_pointcloud_action)
+        self.plots_toolbar.addAction(self.add_mesh_action)
 
         self.plots_toolbar.setEnabled(False)
 
@@ -471,6 +489,20 @@ class MainWindow(QMainWindow):
         Display a plot window
         """
         pass
+        
+    def handle_add_pointcloud(self):
+        """
+        Display a pointcloud window
+        """
+        hdf5widget = self.tabs.currentWidget()
+        hdf5widget.add_pointcloud()
+        
+    def handle_add_mesh(self):
+        """
+        Display a mesh window
+        """
+        hdf5widget = self.tabs.currentWidget()
+        hdf5widget.add_mesh()
 
     #
     # Events
