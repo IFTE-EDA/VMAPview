@@ -199,10 +199,14 @@ class MainWindow(QMainWindow):
         self.plots_toolbar.setObjectName('plots_toolbar')
         self.plots_toolbar.addAction(self.add_image_action)
         self.plots_toolbar.addAction(self.add_plot_action)
-        self.plots_toolbar.addAction(self.add_pointcloud_action)
-        self.plots_toolbar.addAction(self.add_mesh_action)
+        
+        self.geometry_toolbar = self.addToolBar('Meshes')
+        self.geometry_toolbar.setObjectName('geometry_toolbar')
+        self.geometry_toolbar.addAction(self.add_pointcloud_action)
+        self.geometry_toolbar.addAction(self.add_mesh_action)
 
         self.plots_toolbar.setEnabled(False)
+        self.geometry_toolbar.setEnabled(False)
 
     def init_statusbar(self):
         """
@@ -461,6 +465,7 @@ class MainWindow(QMainWindow):
         the tree selection changes.
         """
         self.plots_toolbar.setEnabled(False)
+        self.geometry_toolbar.setEnabled(False)
 
         hdf5widget = self.tabs.currentWidget()
 
@@ -476,6 +481,7 @@ class MainWindow(QMainWindow):
         path = hdf5widget.tree_model.itemFromIndex(index).data(Qt.UserRole)
         obj = hdf5widget.hdf[path]
         self.plots_toolbar.setEnabled(isinstance(obj, h5py.Dataset))
+        self.geometry_toolbar.setEnabled(isinstance(obj, h5py.Group) and obj.parent.name == "/VMAP/GEOMETRY")
 
     def handle_add_image(self):
         """

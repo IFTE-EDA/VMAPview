@@ -27,7 +27,7 @@ from qtpy.QtWidgets import (
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 # from vedo import Mesh, dataurl, Plotter
 import vedo as v
-
+import h5py
 import pyqtgraph as pg
 
 from .models import (
@@ -252,6 +252,7 @@ class HDF5Widget(QWidget):
         """
         Add a pointcloud from the hdf5 file.
         """
+        #renderWidget = self.generate_new_render_widget()
         renderWidget = QVTKRenderWindowInteractor(self)
         id_rw = id(renderWidget)
         self.render_widgets[id_rw] = renderWidget
@@ -265,13 +266,78 @@ class HDF5Widget(QWidget):
         index = self.tabs.addTab(renderWidget, 'Pointcloud')
         self.tabs.setCurrentIndex(index)
         
-        renderPlt.show(v.Box())
+        path = self.tree_model.itemFromIndex(self.tree_view.currentIndex()).data(Qt.UserRole)
+        print("Sel. Path: {}".format(path))
+        node = self.hdf[path]
+        print("Node: {}".format(node))
+        if isinstance(node, h5py.Dataset):
+            print("Please select the correct geometry group.")
+            return
+        
+        pts = [elem for elem in node["POINTS/MYCOORDINATES"]]
+        conn = [elem[0][5] for elem in node["ELEMENTS/MYELEMENTS"]]
+           
+        print("\n\n")
+        print(pts)
+        print("\n\n")
+        print(conn)
+        print("\n\n")
+        
+        pcld = v.Points(pts, c="blue")
+        renderPlt.show(pcld)#, labels)
+           
         
     def add_mesh(self):
         """
         Add a mesh from the hdf5 file.
         """
-        pass
+        renderWidget = QVTKRenderWindowInteractor(self)
+        id_rw = id(renderWidget)
+        self.render_widgets[id_rw] = renderWidget
+        
+        self.tab_dims[id_rw] = list(self.dims_model.shape)
+        tree_index = self.tree_view.currentIndex()
+        self.tab_node[id_rw] = tree_index
+        
+        renderPlt = v.Plotter(qt_widget=renderWidget, axes=1)
+        
+        index = self.tabs.addTab(renderWidget, 'Mesh')
+        self.tabs.setCurrentIndex(index)
+        
+        path = self.tree_model.itemFromIndex(self.tree_view.currentIndex()).data(Qt.UserRole)
+        print("Sel. Path: {}".format(path))
+        node = self.hdf[path]
+        print("Node: {}".format(node))
+        if isinstance(node, h5py.Dataset):
+            print("Please select the correct geometry group.")
+            return
+        
+        pts = [elem for elem in node["POINTS/MYCOORDINATES"]]
+        #conn = [elem[0][5] for elem in node["ELEMENTS/MYELEMENTS"]]
+        #[id-1 for id in array]
+        conn = [[id-1 for id in elem[0][5]] for elem in node["ELEMENTS/MYELEMENTS"]]
+           
+        print("\n\n")
+        print(pts)
+        print("\n\n")
+        print(conn)
+        print("\n\n")
+        
+        mesh = v.Mesh([pts, conn]).c("red").alpha(0.7).lw(1)
+        #labels = pcld.labels('id', scale=1).c('green2')
+        renderPlt.show(mesh)#, labels)
+           
+        """
+        for i in range(geomElemsRead.myElementsSize):
+            element = geomElemsRead.getElement(i)
+            print("element id: \t {0:d} \tvmapType: {1} \tconnectivity: {2}".format(element.getIdentifier(),element.getElementType(), element.getConnectivity()))
+            conn.append([id-1 for id in element.getConnectivity()])
+        print(conn)
+        #conn.append([1,2,0,3])
+        mesh = v.Mesh([pts, conn]).c("red").alpha(0.7).lw(1)
+        #labels = pcld.labels('id', scale=1).c('green2')
+        v.show(mesh)#, labels)
+        """
 
 
     def handle_close_tab(self, index):
