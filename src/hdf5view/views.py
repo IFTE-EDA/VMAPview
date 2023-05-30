@@ -29,6 +29,7 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vedo as v
 import h5py
 import pyqtgraph as pg
+from .VMAPMeshReader import VMAPMeshReader
 
 from .models import (
     AttributesTableModel,
@@ -284,6 +285,7 @@ class HDF5Widget(QWidget):
         print("\n\n")
         
         pcld = v.Points(pts, c="blue")
+        #labels = pcld.labels('id', scale=1).c('green2')
         renderPlt.show(pcld)#, labels)
            
         
@@ -313,17 +315,33 @@ class HDF5Widget(QWidget):
             return
         
         pts = [elem for elem in node["POINTS/MYCOORDINATES"]]
+        ids = [elem[0] for elem in node["POINTS/MYIDENTIFIERS"]]
+        elements = [elem[0] for elem in node["ELEMENTS/MYELEMENTS"]]
+        elemTypes = [elem[0] for elem in self.hdf["/VMAP/SYSTEM/ELEMENTTYPES"]]
         #conn = [elem[0][5] for elem in node["ELEMENTS/MYELEMENTS"]]
         #[id-1 for id in array]
         conn = [[id-1 for id in elem[0][5]] for elem in node["ELEMENTS/MYELEMENTS"]]
-           
-        print("\n\n")
-        print(pts)
-        print("\n\n")
-        print(conn)
-        print("\n\n")
         
-        mesh = v.Mesh([pts, conn]).c("red").alpha(0.7).lw(1)
+        """   
+        print("\n\n")
+        print("Points:", pts)
+        print("\n\n")
+        print("IDs:", ids)
+        print("\n\n")
+        print("Elements:", elements)
+        print("\n\n")
+        print("ElemTypes:", elemTypes)
+        print("\n\n\n\n")
+        """
+        
+        reader = VMAPMeshReader()
+        reader.setPoints(pts)
+        reader.setIDs(ids)
+        reader.setElements(elements)
+        reader.setElementTypes(elemTypes)
+        
+        mesh = reader.getMesh()
+        #mesh = v.TetMesh([pts, conn]).c("red").alpha(1)#.lw(1)
         #labels = pcld.labels('id', scale=1).c('green2')
         renderPlt.show(mesh)#, labels)
            
@@ -556,3 +574,7 @@ class ImageView(QAbstractItemView):
 
     def moveCursor(self, cursorAction, modifiers):
         return QModelIndex()
+
+
+
+        
