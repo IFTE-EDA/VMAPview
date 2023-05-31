@@ -1,16 +1,13 @@
-[![PyPI Version](https://img.shields.io/pypi/v/hdf5view.svg)](https://pypi.python.org/pypi/hdf5view/)
-[![Supported Python Versions](https://img.shields.io/pypi/pyversions/hdf5view.svg)](https://pypi.python.org/pypi/hdf5view/)
+# VMAPView
 
-# hdf5view
-
-Simple Qt/Python based viewer for HDF5 files. Displays a file tree, data tables and attributes and can render greyscale images of any nodes which have two or more dimensions, and rgb or rgba images of any nodes with three or more dimensions. Everything is loaded dynamically, so hopefully it should be able to handle HDF5 files of any size and structure.
+Fork of [hdfview](https://github.com/marts/hdf5view) with support for showing VMAP geometries as pointclouds or meshes. 
 
 
 ## 1. Installing
 
 #### Qt API Bindings
 
-One of [pyqt5](https://www.riverbankcomputing.com/software/pyqt/), [pyside2](https://pyside.org), [pyqt6](https://www.riverbankcomputing.com/software/pyqt/) or [pyside6](https://pyside.org) is required in order to be able to run hdf5view. Please install one of these e.g. with pip:
+One of [pyqt5](https://www.riverbankcomputing.com/software/pyqt/), [pyside2](https://pyside.org), [pyqt6](https://www.riverbankcomputing.com/software/pyqt/) or [pyside6](https://pyside.org) is required in order to be able to run VMAPView. Please install one of these e.g. with pip:
 
 ```
 pip install pyqt5
@@ -22,9 +19,9 @@ or on linux (Ubuntu/Debian), you can install a system package:
 sudo apt install python3-pyqt5
 ```
 
-[qtpy](https://github.com/spyder-ide/qtpy) is used as an abstraction layer for pyqt5/pyside2/pyqt6/pyside6. If you have any of these Qt API bindings installed, qtpy will take the first available one in the order shown in the previous sentence. hdf5view works with all of the bindings. If you have more than one of the bindings installed and want to specify which one should be used for hdf5view, you can do this by setting the `QT_API` environment variable before running hdf5view.
+[qtpy](https://github.com/spyder-ide/qtpy) is used as an abstraction layer for pyqt5/pyside2/pyqt6/pyside6. If you have any of these Qt API bindings installed, qtpy will take the first available one in the order shown in the previous sentence. VMAPView works with all of the bindings. If you have more than one of the bindings installed and want to specify which one should be used for VMAPView, you can do this by setting the `QT_API` environment variable before running VMAPView.
 
-For example: if you have pyqt5 and pyside2 installed and you want hdf5view to use PySide2, on Windows PowerShell:
+For example: if you have pyqt5 and pyside2 installed and you want VMAPView to use PySide2, on Windows PowerShell:
 
 ```
 $env:QT_API = 'pyside2'
@@ -36,12 +33,12 @@ or on linux (Ubuntu/Debian)
 export QT_API=pyside2
 ```
 
-before running HDF5View
+before running VMAPView
 
 
 #### Other Dependencies
 
-The other dependencies are [qtpy](https://github.com/spyder-ide/qtpy), [h5py](https://www.h5py.org/) and [pyqtgraph](https://www.pyqtgraph.org/). Currently installed versions of these dependencies will not be overwritten by installing hdf5view. If these are not already present on your system, they will be installed during the installation of hdf5view. 
+The other dependencies are [qtpy](https://github.com/spyder-ide/qtpy), [h5py](https://www.h5py.org/) and [pyqtgraph](https://www.pyqtgraph.org/). Currently installed versions of these dependencies will not be overwritten by installing VMAPView. If these are not already present on your system, they will be installed during the installation of VMAPView. 
 
 If you prefer to install them in advance, you can use pip:
 
@@ -58,31 +55,19 @@ sudo apt install python3-h5py python3-pyqtgraph python3-qtpy
 Note: [pyqtgraph](https://www.pyqtgraph.org/) 0.12 supports all of pyqt5, pyside2, pyqt6 or pyside6. Older versions of pyqtgraph may not support all of them.
 
 
-#### hdf5view
-
-To install the current release from PyPI system-wide on Windows:
-
-```
-pip install hdf5view
-```
-
-or on linux:
-
-```
-sudo pip3 install hdf5view
-```
+#### VMAPView
 
 To install the current development version, download or clone the repo and install either system-wide on Windows:
 
 ```
-cd hdf5view
+cd vmapview
 pip install .
 ```
 
 or on linux:
 
 ```
-cd hdf5view
+cd vmapview
 sudo pip3 install .
 ```
 
@@ -96,16 +81,16 @@ source bin/activate
 pip install -e .
 ```
 
-To uninstall hdf5view:
+To uninstall vmapview:
 
 ```
-pip uninstall hdf5view
+pip uninstall vmapview
 ```
 
 or:
 
 ```
-sudo pip3 uninstall hdf5view
+sudo pip3 uninstall vmapview
 ```
 
 ## 2. Running
@@ -113,18 +98,23 @@ sudo pip3 uninstall hdf5view
 From the terminal:
 
 ```
-hdf5view
+vmapview
 ```
 
 or
 
 ```
-hdf5view -f <hdf5file>
+vmapview -f <vmapfile>
 ```
 
-HDF5 files can also be dropped onto the application window once opened.
+It is also possible to run the program without installing by executing the following command from insie the "src" directory:
+```
+python -m vmapview
+```
 
-You can also create a desktop link to start the program for convenience. A Windows icon file hdf5view.ico is provided in the folder hdf5view/resources/images.
+VMAP files can also be dropped onto the application window once opened.
+
+You can also create a desktop link to start the program for convenience. A Windows icon file hdf5view.ico is provided in the folder vmapview/resources/images.
 
 ## 3. Usage
 
@@ -136,16 +126,13 @@ To display an image of a particular node, click the image icon on the toolbar at
 
 * rgb or rgba: if the node has three or more dimensions and the shape of the last dimension is three or four. If the node has more than three dimensions, a scrollbar is provided, which can be used to scroll through the first dimension. This is useful for a stack of rgb or rgba images, for example.
 
+To show the embeded geometries of the file as a point cloud or mesh, click on the respective icon in the top toolbar. This option is only available ater selecting a geometry group in the */VMAP/GEOMETRY/<id>* path where *id* stands for the id (usually a number) of the geometry to visualize.
+
 ## 4. Testing
 
 Currently there are no unit tests for this package. The gui has been tested with qtpy=2.2.0, pyqtgraph=0.12.4 and h5py=3.7.0 in combination with pyqt5=5.15.7, pyside2=5.15.2.1, pyqt6=6.3.1 and pyside6=6.3.2, and it works with all of the Qt API bindings.
 
 ## 5. Issues
 
-If there are any issues, please feel free to use the [issues mechanism on github](https://github.com/marts/hdf5view/issues) to get in touch.
+If there are any issues, please feel free to use the [issues mechanism on github](https://github.com/IFTE-EDA/VMAPview/issues) to get in touch.
 
-## TODO:
-
-* Add xy plots in pyqtgraph
-* Add a more complex slice view/delegate
-* Add some 3D stuff
